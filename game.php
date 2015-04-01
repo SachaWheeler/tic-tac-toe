@@ -172,12 +172,13 @@ function addChildren($board){
 	{
 		if(in_array($x, $done) || $board_array[$x] != '0') continue;
 		$done[] = $x;
-		$p1move = substr_replace($board, '1', $x, 1);
 
+		$p1move = substr_replace($board, '1', $x, 1);
 		if(isWinner($p1move, 1)){
-			$children[$p2move] = "win";
+			$children[$p1move] = "win";
 			continue;
-		}elseif(substr_count($p1move, '0') == 0){
+		}
+		if(substr_count($p1move, '0') == 0){
 			$children[$p1move] = "tie";
 			continue;
 		}
