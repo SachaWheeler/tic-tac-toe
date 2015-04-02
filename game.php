@@ -2,6 +2,7 @@
 
 $start = "000000000";
 $tree = array();
+$pages = array($start);
 
 // first and second moves
 $tree[$start] = addChildren($start);
@@ -60,20 +61,9 @@ foreach($tree[$start] as $k => $v){
 	}
 }
 
-output($tree);
+//output($tree);
+output($pages);
 exit(0); 
-
-getMoves($tree);
-foreach($tree[$start] as $k => $x){
-	if(is_array($x)){
-		foreach($tree[$start][$k] as $k2 => $v){
-			if($v == 'x')
-				$tree[$start][$k][$k2] = addChildren($k2);
-		}
-	}
-}
-
-print_r($tree);
 
 function get_move($board){
 	// echo "board: {$board}\n";
@@ -165,6 +155,7 @@ function get_move($board){
 }
 
 function addChildren($board){
+	global $pages;
 	$children = array();
 	$done = array();
 	$board_array = str_split($board);
@@ -176,19 +167,23 @@ function addChildren($board){
 		$p1move = substr_replace($board, '1', $x, 1);
 		if(isWinner($p1move, 1)){
 			$children[$p1move] = "win";
+			$pages[] = $p1move;
 			continue;
 		}
 		if(substr_count($p1move, '0') == 0){
 			$children[$p1move] = "tie";
+			if(!in_array($p1move, $pages)) $pages[] = $p1move;
 			continue;
 		}
 
 		$p2move = get_move($p1move);
 		if(isWinner($p2move, 2)){
 			$children[$p2move] = "lose";
+			$pages[] = $p2move;
 			continue;
 		}
 		$children[$p2move] = 'x';
+		$pages[] = $p2move;
 	}
 	return $children;
 }
