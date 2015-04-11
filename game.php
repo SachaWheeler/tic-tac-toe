@@ -61,8 +61,8 @@ foreach($tree[$start] as $k => $v){
 	}
 }
 
-//output($tree);
-output($pages);
+output($tree);
+//output($pages);
 exit(0); 
 
 function get_move($board){
