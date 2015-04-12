@@ -53,7 +53,8 @@ function save_image($board_string){
 			case 0:
 				if($state == "play"){ // draw the page number
 					// get the page number
-					$dest_page_board = substr_replace($board_string, '1', $x, 1);
+					$dest_page_board = substr_replace($board_string, '1', $square, 1);
+// print_r($board_string); echo "\n"; print_r($dest_page_board); die(0);
 					if(in_array($dest_page_board, $pages))
 						$text = array_search($dest_page_board, $pages);
 					else
