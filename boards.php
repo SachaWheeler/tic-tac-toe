@@ -1,91 +1,113 @@
 <?php
 
-// Create an image 
-
-$width = 600;
-$height = 800;
-$line_width = 5;
+$width = 1200;
+$height = 1600;
+$line_width = 10;
 $offset = ($width/3)/3;
+	
+$font_path = "/Library/Fonts/Courier New Bold.ttf";
+$page_font_size = 20;
+$result_size = 35;
+	
+function save_image($board_array){
+	// Create an image 
+	global $width, $height,$line_width, $offset, $font_path, $page_font_size, $result_size;
+	
 
-$im = imagecreatetruecolor($width, $height);
-$white = imagecolorallocate($im, 0xFF, 0xFF, 0xFF);
-$grey = imagecolorallocate($im, 0xbd, 0xbd, 0xbd);
-$black = imagecolorallocate($im, 0x00, 0x00, 0x00);
-$red = imagecolorallocate($im, 255, 0, 0);
-
-// Set the background to be white
-imagefilledrectangle($im, 0, 0, $width, $height, $white);
-
-// Set the line thickness
-imagesetthickness($im, $line_width);
-
-// draw the grid
-$grid = array(
-		array(0, $width/3, $width, $width/3),
-		array(0, ($width/3)*2, $width, ($width/3)*2),
-		array($width/3, 0, $width/3, $width),
-		array(($width/3)*2, 0, ($width/3)*2, $width),
-	);
-foreach($grid as $line)
-	imageline ( $im , $line[0] , $line[1] , $line[2] , $line[3] , $black );
-
-$board = str_split($_GET['board']);
-if(isWinner($_GET['board'], 1))
-	$state = "win";
-elseif(isWinner($_GET['board'], 2))
-	$state = "lose";
-else
-	$state = "play";
-for($square=0 ; $square < count($board) ; $square++){
-	list($x, $y) = getcoordinates($square);
-	switch($board[$square]){
-		case 0:
-			if($state == "play") // draw the page number
-				imagestring($im, 5, $x, $y, 'page #', $grey);
-			break;
-		case 1:
-			// draw an 'x'
-			imageline( $im , $x-$offset, $y-$offset, $x+$offset, $y+$offset, $grey);
-			imageline( $im , $x-$offset, $y+$offset, $x+$offset, $y-$offset, $grey);
-			break;
-		case 2:
-			// draw an 'o'
-			// imageellipse ( $im , $x , $y , $offset*2 , $offset*2 , $grey );
-			imagefilledellipse  ($im , $x , $y , ($offset+$line_width)*2 , ($offset+$line_width)*2 , $grey); 
-			imagefilledellipse  ($im , $x , $y ,$offset*2 ,$offset*2 ,$white); 
-			break;
+	$im = imagecreatetruecolor($width, $height);
+	$white = imagecolorallocate($im, 0xFF, 0xFF, 0xFF);
+	$grey = imagecolorallocate($im, 0xbd, 0xbd, 0xbd);
+	$black = imagecolorallocate($im, 0x00, 0x00, 0x00);
+	$red = imagecolorallocate($im, 255, 0, 0);
+	
+	imagecolortransparent($im, $white);
+	
+	// Set the background to be white
+	imagefilledrectangle($im, 0, 0, $width, $height, $white);
+	
+	// Set the line thickness
+	imagesetthickness($im, $line_width);
+	
+	// draw the grid
+	$grid = array(
+			array(0, $width/3, $width, $width/3),
+			array(0, ($width/3)*2, $width, ($width/3)*2),
+			array($width/3, 0, $width/3, $width),
+			array(($width/3)*2, 0, ($width/3)*2, $width),
+		);
+	foreach($grid as $line)
+		imageline ( $im , $line[0] , $line[1] , $line[2] , $line[3] , $black );
+	
+	$board = str_split($board_array);
+	if(isWinner($board_array, 1))
+		$state = "win";
+	elseif(isWinner($board_array, 2))
+		$state = "lose";
+	else
+		$state = "play";
+	for($square=0 ; $square < count($board) ; $square++){
+		list($x, $y) = getcoordinates($square);
+		switch($board[$square]){
+			case 0:
+				if($state == "play"){ // draw the page number
+					// get the page number
+					$text = "page #";
+					$bb = imagettfbbox ( $page_font_size , 0 , $font_path , $text );
+					$half_text_width = ($bb[2] - $bb[0]) /2;
+					$half_text_height = ($bb[7] - $bb[1]) /2;
+					imagettftext($im, $page_font_size, 0, $x - $half_text_width, $y - $half_text_height, $black, $font_path, $text);
+				}
+				break;
+			case 1:
+				// draw an 'x'
+				imageline( $im , $x-$offset, $y-$offset, $x+$offset, $y+$offset, $grey);
+				imageline( $im , $x-$offset, $y+$offset, $x+$offset, $y-$offset, $grey);
+				break;
+			case 2:
+				// draw an 'o'
+				// imageellipse ( $im , $x , $y , $offset*2 , $offset*2 , $grey );
+				imagefilledellipse  ($im , $x , $y , ($offset+$line_width)*2 , ($offset+$line_width)*2 , $grey); 
+				imagefilledellipse  ($im , $x , $y ,$offset*2 ,$offset*2 ,$white); 
+				break;
+		}
 	}
-}
-if($state != "play"){
-	$coords = getwinningline($board);
-	$start = getcoordinates($coords[0]);
-	$end = getcoordinates($coords[1]);
-	if($coords[2] == 'h'){
-		$start[0] -= ($offset/2);
-		$end[0]   += ($offset/2);
-	}elseif($coords[2] == 'v'){
-		$start[1] -= ($offset/2);
-		$end[1]   += ($offset/2);
-	}elseif($coords[2] == 'd1'){
-		$start[0] -= ($offset/2);
-		$start[1] -= ($offset/2);
-		$end[0]   += ($offset/2);
-		$end[1]   += ($offset/2);
-	}elseif($coords[2] == 'd2'){
-		$start[0] -= ($offset/2);
-		$start[1] += ($offset/2);
-		$end[0]   += ($offset/2);
-		$end[1]   -= ($offset/2);
+	if($state != "play"){
+		$state = "you ".$state;
+		$coords = getwinningline($board);
+		$start = getcoordinates($coords[0]);
+		$end = getcoordinates($coords[1]);
+		if($coords[2] == 'h'){
+			$start[0] -= ($offset/2);
+			$end[0]   += ($offset/2);
+		}elseif($coords[2] == 'v'){
+			$start[1] -= ($offset/2);
+			$end[1]   += ($offset/2);
+		}elseif($coords[2] == 'd1'){
+			$start[0] -= ($offset/2);
+			$start[1] -= ($offset/2);
+			$end[0]   += ($offset/2);
+			$end[1]   += ($offset/2);
+		}elseif($coords[2] == 'd2'){
+			$start[0] -= ($offset/2);
+			$start[1] += ($offset/2);
+			$end[0]   += ($offset/2);
+			$end[1]   -= ($offset/2);
+		}
+		imagesetthickness($im, $line_width*2);
+		imageline( $im , $start[0], $start[1], $end[0], $end[1], $red);
+	
+		$bb = imagettfbbox ( $result_size , 0 , $font_path , $state );
+		$half_text_width = ($bb[2] - $bb[0]) /2;
+		imagettftext($im, $result_size, 0, $width/2 - $half_text_width, $width+($height-$width)/2, $red, $font_path, $state);
 	}
-	imageline( $im , $start[0], $start[1], $end[0], $end[1], $red);
+	
+	// Output image to the browser
+	//header('Content-Type: image/png');
+	
+	imagepng($im, "./results/".$board_array.".png");
+	//imagedestroy($im);
 }
-
-// Output image to the browser
-header('Content-Type: image/png');
-
-imagepng($im);
-imagedestroy($im);
-
+	
 function getwinningline($b){
                 if($b[0] > 0 && $b[0] == $b[1] && $b[1] == $b[2] ) return array(0,2, 'h');
                 if($b[3] > 0 && $b[3] == $b[4] && $b[4] == $b[5] ) return array(3,5, 'h');
@@ -98,23 +120,6 @@ function getwinningline($b){
                 if($b[0] > 0 && $b[0] == $b[4] && $b[4] == $b[8] ) return array(0,8, 'd1');
                 if($b[6] > 0 && $b[6] == $b[4] && $b[4] == $b[2] ) return array(6,2, 'd2');
 }
-
-function isWinner($board, $player){
-        $b = str_split($board);
-        if(
-                ($b[0] == $player && $b[1] == $player && $b[2] == $player ) ||
-                ($b[3] == $player && $b[4] == $player && $b[5] == $player ) ||
-                ($b[6] == $player && $b[7] == $player && $b[8] == $player ) ||
-
-                ($b[0] == $player && $b[3] == $player && $b[6] == $player ) ||
-                ($b[1] == $player && $b[4] == $player && $b[7] == $player ) ||
-                ($b[2] == $player && $b[5] == $player && $b[8] == $player ) ||
-
-                ($b[0] == $player && $b[4] == $player && $b[8] == $player ) ||
-                ($b[2] == $player && $b[4] == $player && $b[6] == $player ))
-        return true;
-}
-
 
 function getcoordinates($cell){
 	global $width, $height;
