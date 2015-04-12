@@ -5,6 +5,7 @@ include_once("boards.php");
 $start = "000000000";
 $tree = array();
 $pages = array($start);
+$page_pointers = array();
 
 // first and second moves
 $tree[$start] = addChildren($start);
@@ -65,6 +66,7 @@ foreach($tree[$start] as $k => $v){
 
 //output($tree);
 output($pages);
+output($page_pointers);
 foreach($pages as $page){
 	save_image($page);
 }
@@ -160,7 +162,7 @@ function get_move($board){
 }
 
 function addChildren($board){
-	global $pages;
+	global $pages, $page_pointers;
 	$children = array();
 	$done = array();
 	$board_array = str_split($board);
@@ -177,7 +179,7 @@ function addChildren($board){
 		}
 		if(substr_count($p1move, '0') == 0){
 			$children[$p1move] = "tie";
-			if(!in_array($p1move, $pages)) if(!in_array($p1move, $pages)) $pages[] = $p1move;
+			if(!in_array($p1move, $pages)) $pages[] = $p1move;
 			continue;
 		}
 
@@ -185,10 +187,15 @@ function addChildren($board){
 		if(isWinner($p2move, 2)){
 			$children[$p2move] = "lose";
 			if(!in_array($p2move, $pages)) $pages[] = $p2move;
+			$page_pointers[$p1move] = array_search($p2move, $pages);
 			continue;
 		}
 		$children[$p2move] = 'x';
 		if(!in_array($p2move, $pages)) $pages[] = $p2move;
+
+		$page_pointers[$p1move] = array_search($p2move, $pages);
+
+		// $page_pointers[$board][$x] = key( array_slice( $pages, -1, 1, TRUE ) );
 	}
 	return $children;
 }

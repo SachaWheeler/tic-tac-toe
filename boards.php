@@ -8,11 +8,13 @@ $offset = ($width/3)/3;
 $font_path = "/Library/Fonts/Courier New Bold.ttf";
 $page_font_size = 20;
 $result_size = 35;
+$image_count = 0;
 	
 function save_image($board_string){
 	// Create an image 
 	global $width, $height, $line_width, $offset, $font_path, $page_font_size, $result_size, $pages;
-	
+	global $page_pointers, $image_count;
+	$image_count++;
 
 	$im = imagecreatetruecolor($width, $height);
 	$white = imagecolorallocate($im, 0xFF, 0xFF, 0xFF);
@@ -54,9 +56,12 @@ function save_image($board_string){
 				if($state == "play"){ // draw the page number
 					// get the page number
 					$dest_page_board = substr_replace($board_string, '1', $square, 1);
-// print_r($board_string); echo "\n"; print_r($dest_page_board); die(0);
+
+					// print_r($board_string); echo "\n"; print_r($dest_page_board); die(0);
 					if(in_array($dest_page_board, $pages))
-						$text = array_search($dest_page_board, $pages);
+						$text = array_search($dest_page_board, $pages)+1;
+					elseif(isset($page_pointers[$dest_page_board]))
+						$text = $page_pointers[$dest_page_board]+1;
 					else
 						$text = "page #";
 					$bb = imagettfbbox ( $page_font_size , 0 , $font_path , $text );
@@ -117,7 +122,7 @@ function save_image($board_string){
 	// Output image to the browser
 	//header('Content-Type: image/png');
 	
-	imagepng($im, "./results/".$board_string.".png");
+	imagepng($im, "./results/".sprintf("%03d", $image_count)."-".$board_string.".png");
 	//imagedestroy($im);
 }
 	
