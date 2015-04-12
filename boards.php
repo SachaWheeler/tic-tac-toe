@@ -9,9 +9,9 @@ $font_path = "/Library/Fonts/Courier New Bold.ttf";
 $page_font_size = 20;
 $result_size = 35;
 	
-function save_image($board_array){
+function save_image($board_string){
 	// Create an image 
-	global $width, $height,$line_width, $offset, $font_path, $page_font_size, $result_size;
+	global $width, $height, $line_width, $offset, $font_path, $page_font_size, $result_size, $pages;
 	
 
 	$im = imagecreatetruecolor($width, $height);
@@ -38,11 +38,13 @@ function save_image($board_array){
 	foreach($grid as $line)
 		imageline ( $im , $line[0] , $line[1] , $line[2] , $line[3] , $black );
 	
-	$board = str_split($board_array);
-	if(isWinner($board_array, 1))
+	$board = str_split($board_string);
+	if(isWinner($board_string, 1))
 		$state = "win";
-	elseif(isWinner($board_array, 2))
+	elseif(isWinner($board_string, 2))
 		$state = "lose";
+	elseif(substr_count($board_string, 0) == 0)
+		$state = "tie";
 	else
 		$state = "play";
 	for($square=0 ; $square < count($board) ; $square++){
@@ -51,7 +53,11 @@ function save_image($board_array){
 			case 0:
 				if($state == "play"){ // draw the page number
 					// get the page number
-					$text = "page #";
+					$dest_page_board = substr_replace($board_string, '1', $x, 1);
+					if(in_array($dest_page_board, $pages))
+						$text = array_search($dest_page_board, $pages);
+					else
+						$text = "page #";
 					$bb = imagettfbbox ( $page_font_size , 0 , $font_path , $text );
 					$half_text_width = ($bb[2] - $bb[0]) /2;
 					$half_text_height = ($bb[7] - $bb[1]) /2;
@@ -71,7 +77,13 @@ function save_image($board_array){
 				break;
 		}
 	}
-	if($state != "play"){
+	if($state == "tie"){
+		// tie
+		$state = "it's a tie";
+		$bb = imagettfbbox ( $result_size , 0 , $font_path , $state );
+		$half_text_width = ($bb[2] - $bb[0]) /2;
+		imagettftext($im, $result_size, 0, $width/2 - $half_text_width, $width+($height-$width)/2, $red, $font_path, $state);
+	}elseif($state != "play"){
 		$state = "you ".$state;
 		$coords = getwinningline($board);
 		$start = getcoordinates($coords[0]);
@@ -104,7 +116,7 @@ function save_image($board_array){
 	// Output image to the browser
 	//header('Content-Type: image/png');
 	
-	imagepng($im, "./results/".$board_array.".png");
+	imagepng($im, "./results/".$board_string.".png");
 	//imagedestroy($im);
 }
 	
