@@ -1,13 +1,13 @@
 <?php
 
-$width = 1200;
-$height = 1600;
-$line_width = 10;
+$width = 2400;
+$height = 3200;
+$line_width = 20;
 $offset = ($width/3)/3;
 	
 $font_path = "/Library/Fonts/Courier New Bold.ttf";
-$page_font_size = 20;
-$result_size = 35;
+$page_font_size = 40;
+$result_size = 70;
 $image_count = 0;
 	
 function save_image($board_string){
