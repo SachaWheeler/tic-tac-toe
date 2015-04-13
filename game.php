@@ -6,9 +6,9 @@ $pages = array($start);
 $page_pointers = array();
 
 // presentation vars
-$width = 2400;
-$height = 3200;
-$line_width = 20;
+$width = 1800;
+$height = 2400;
+$line_width = 25;
 $offset = ($width/3)/3;
 	
 $font_path = "/Library/Fonts/Courier New Bold.ttf";
@@ -74,8 +74,8 @@ foreach($tree[$start] as $k => $v){
 }
 
 //output($tree);
-output($pages);
-output($page_pointers);
+//output($pages);
+//output($page_pointers);
 foreach($pages as $page){
 	save_image($page);
 }
