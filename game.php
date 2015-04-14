@@ -7,13 +7,13 @@ $page_pointers = array();
 
 // presentation vars
 $width = 1800;
-$height = 2000;
+$height = 2200;
 $line_width = 25;
 $offset = ($width/3)/3;
 	
 $font_path = "/Library/Fonts/Courier New Bold.ttf";
 $page_font_size = 40;
-$result_size = 50;
+$result_size = 80;
 $image_count = 0;
 	
 // first and second moves
